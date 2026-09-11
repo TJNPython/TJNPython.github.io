@@ -27,27 +27,8 @@
 ## 目录结构
 
 ```
-├── index.html          # 页面结构（mdui 组件）
+├── index.html          # 页面结构
 ├── css/style.css       # 自定义样式与主题令牌
 ├── js/i18n.js          # 多语言字典
 └── js/app.js           # 应用逻辑
 ```
-
-HTML / CSS / JavaScript 已完全分离，结构清晰，便于维护。
-
-## 使用
-
-直接通过浏览器访问 `index.html` 即可运行（mdui 通过 CDN 加载）。
-
-默认密钥：`MiybyTJN`（主系统）、`DebugbyTJN`（调试面板）。
-
-## 开发
-
-```bash
-# 本地预览
-python3 -m http.server 8000
-```
-
-## 许可
-
-MIT
