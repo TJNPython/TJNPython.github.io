@@ -109,19 +109,33 @@ document.addEventListener('DOMContentLoaded', () => {
     renderStaticText();
     renderHistory();
     renderFavorites();
+    syncSettingsUI();
   }
 
   /* ---------------- 主题 / 莫奈配色 ---------------- */
+  const hexToRgb = (hex) => {
+    const h = String(hex).replace('#', '');
+    if (h.length !== 6) return hex;
+    return `${parseInt(h.substring(0, 2), 16)}, ${parseInt(h.substring(2, 4), 16)}, ${parseInt(h.substring(4, 6), 16)}`;
+  };
+
+  function syncMduiTheme() {
+    if (window.mdui && typeof mdui.setTheme === 'function') {
+      mdui.setTheme(currentTheme === 'auto' ? 'auto' : (root.getAttribute('data-theme') || currentTheme));
+    }
+  }
+
   function applyTheme(theme) {
     currentTheme = theme;
     localStorage.setItem('theme', theme);
     if (theme === 'auto') {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
-      const set = (e) => { root.setAttribute('data-theme', e.matches ? 'dark' : 'light'); applyMonetScheme(currentMonetScheme); };
+      const set = (e) => { root.setAttribute('data-theme', e.matches ? 'dark' : 'light'); syncMduiTheme(); applyMonetScheme(currentMonetScheme); };
       set(mq);
       if (!window.__themeListener) { mq.addEventListener('change', set); window.__themeListener = true; }
     } else {
       root.setAttribute('data-theme', theme);
+      syncMduiTheme();
       applyMonetScheme(currentMonetScheme);
     }
     syncSettingsUI();
