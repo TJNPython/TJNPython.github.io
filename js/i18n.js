@@ -12,6 +12,12 @@ window.I18N = (() => {
   const dict = {
     /* ---- 静态标签 ---- */
     app_title: { 'zh-CN': 'TJN-PYTHON SYSTEM', 'zh-TW': 'TJN-PYTHON SYSTEM', en: 'TJN-PYTHON SYSTEM', ja: 'TJN-PYTHON SYSTEM' },
+    key_page_title: { 'zh-CN': '系统验证', 'zh-TW': '系統驗證', en: 'Verification', ja: '認証' },
+    key_page_subtitle: { 'zh-CN': '请输入访问密钥以继续使用系统', 'zh-TW': '請輸入訪問密鑰以繼續使用系統', en: 'Enter the access key to continue', ja: 'アクセスキーを入力して続行' },
+    main_page_title: { 'zh-CN': '命令控制台', 'zh-TW': '命令控制台', en: 'Command Console', ja: 'コマンドコンソール' },
+    main_page_subtitle: { 'zh-CN': '输入符合规范的指令以执行 Python', 'zh-TW': '輸入符合規範的指令以執行 Python', en: 'Enter commands to execute Python', ja: 'コマンドを入力して Python を実行' },
+    locked_page_title: { 'zh-CN': '访问被拒绝', 'zh-TW': '訪問被拒絕', en: 'Access Denied', ja: 'アクセス拒否' },
+    locked_page_subtitle: { 'zh-CN': '您已被系统锁定，无法继续操作', 'zh-TW': '您已被系統鎖定，無法繼續操作', en: 'You have been locked out of the system', ja: 'システムからロックアウトされました' },
     key_label: { 'zh-CN': '请输入密钥', 'zh-TW': '請輸入密鑰', en: 'Enter the key', ja: 'キーを入力' },
     key_placeholder: { 'zh-CN': '请输入密钥', 'zh-TW': '請輸入密鑰', en: 'Enter the key', ja: 'キーを入力' },
     btn_verify: { 'zh-CN': '验证', 'zh-TW': '驗證', en: 'Verify', ja: '認証' },

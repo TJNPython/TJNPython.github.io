@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TJN-PYTHON SYSTEM</title>
 
-    <!-- mdui 所需的 Material Icons 字体 -->
+    <!-- Material 图标字体 -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <!-- mdui Material3 组件库 -->
+    <!-- mdui Material 3 组件库 -->
     <link rel="stylesheet" href="https://unpkg.com/mdui@2/mdui.css">
     <script src="https://unpkg.com/mdui@2/mdui.global.js"></script>
 
-    <!-- 项目自定义样式 -->
+    <!-- 项目自定义样式（沿用原版 UI 设计，仅替换交互组件为 mdui） -->
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -25,162 +25,193 @@
         <div class="blur-overlay" id="blurOverlay"></div>
     </div>
 
-    <div class="app-shell">
-
-        <!-- ======== 密钥验证页 ======== -->
-        <main class="page active" id="keyPage">
-            <mdui-top-app-bar variant="small">
-                <mdui-top-app-bar-title><span data-i18n="app_title"></span></mdui-top-app-bar-title>
-                <div class="app-bar-spacer"></div>
-                <mdui-button-icon icon="settings" id="keySettingsBtn"></mdui-button-icon>
-            </mdui-top-app-bar>
-            <div class="page-body">
-                <div class="attempts-counter" id="attemptsCounter">
-                    <mdui-chip variant="assist" icon="security"></mdui-chip>
-                </div>
-                <mdui-text-field id="keyInput" type="password" variant="outlined" data-i18n-label="key_label"
-                                 data-i18n-placeholder="key_placeholder" color-ripple="false"></mdui-text-field>
-                <mdui-button id="keySubmitBtn" variant="small" class="submit-btn">
-                    <span data-i18n="btn_verify"></span>
-                </mdui-button>
-                <div class="status" id="keyStatusContainer"></div>
-                <div id="keyResult" class="result"></div>
+    <!-- ======== 密钥验证页 ======== -->
+    <div class="container page active" id="keyPage">
+        <div class="header">
+            <div class="header-controls">
+                <mdui-button-icon icon="settings" class="icon-btn" id="keySettingsBtn"></mdui-button-icon>
             </div>
-        </main>
-
-        <!-- ======== 主系统页 ======== -->
-        <main class="page" id="mainPage">
-            <mdui-top-app-bar variant="small">
-                <mdui-top-app-bar-title>TJN-PYTHON SYSTEM</mdui-top-app-bar-title>
-                <div class="app-bar-spacer"></div>
-                <mdui-button-icon icon="settings" id="mainSettingsBtn"></mdui-button-icon>
-            </mdui-top-app-bar>
-            <div class="page-body">
-                <mdui-text-field id="userInput" variant="outlined" data-i18n-label="cmd_label"
-                                 data-i18n-placeholder="cmd_placeholder" color-ripple="false"></mdui-text-field>
-                <mdui-button id="submitBtn" variant="small" class="submit-btn">
-                    <span data-i18n="btn_execute"></span>
-                </mdui-button>
-                <div class="status" id="statusContainer"></div>
-                <div id="result" class="result"></div>
-
-                <!-- 命令历史记录 -->
-                <mdui-card variant="elevated" id="historyContainer" class="panel-card">
-                    <div class="panel-title">
-                        <mdui-icon name="history"></mdui-icon>
-                        <span data-i18n="history_title"></span>
-                        <div class="panel-actions">
-                            <mdui-button-icon icon="clear_all" id="clearHistoryBtn"></mdui-button-icon>
-                        </div>
-                    </div>
-                    <mdui-list id="historyList"></mdui-list>
-                </mdui-card>
-
-                <!-- 收藏夹 -->
-                <mdui-card variant="elevated" id="favoritesContainer" class="panel-card">
-                    <div class="panel-title">
-                        <mdui-icon name="star"></mdui-icon>
-                        <span data-i18n="favorites_title"></span>
-                        <div class="panel-actions">
-                            <mdui-button-icon icon="star_outline" id="addCurrentToFavoritesBtn"></mdui-button-icon>
-                        </div>
-                    </div>
-                    <mdui-list id="favoritesList"></mdui-list>
-                </mdui-card>
-
-                <div class="hint" id="formatHint"></div>
+            <div class="header-content">
+                <h1 data-i18n="key_page_title"></h1>
+                <p data-i18n="key_page_subtitle"></p>
             </div>
-        </main>
-
-        <!-- ======== 无权限页 ======== -->
-        <main class="page" id="lockedPage">
-            <mdui-top-app-bar variant="small" class="locked-bar">
-                <mdui-top-app-bar-title><span data-i18n="locked_title"></span></mdui-top-app-bar-title>
-                <div class="app-bar-spacer"></div>
-                <mdui-button-icon icon="settings" id="lockedSettingsBtn"></mdui-button-icon>
-            </mdui-top-app-bar>
-            <div class="page-body">
-                <mdui-text-field id="lockedInput" variant="outlined" disabled data-i18n-label="locked_label"
-                                 data-i18n-placeholder="locked_placeholder"></mdui-text-field>
-                <mdui-button id="lockedSubmitBtn" variant="tonal" class="locked-btn">
-                    <span data-i18n="btn_no_permission"></span>
-                </mdui-button>
-                <div class="status">
-                    <div class="status-indicator error show">
-                        <mdui-icon name="block"></mdui-icon>
-                        <div>
-                            <div class="status-title" data-i18n="locked_badge_title"></div>
-                            <div data-i18n="locked_badge_desc"></div>
-                        </div>
-                    </div>
-                </div>
-                <div id="lockedResult" class="result"></div>
-                <div class="hint locked-hint"></div>
+        </div>
+        <div class="content">
+            <div class="attempts-counter" id="attemptsCounter">
+                <mdui-chip variant="assist" icon="security"></mdui-chip>
             </div>
-        </main>
-
+            <mdui-text-field id="keyInput" type="password" variant="outlined"
+                             data-i18n-label="key_label" data-i18n-placeholder="key_placeholder"></mdui-text-field>
+            <mdui-button id="keySubmitBtn" class="submit-btn" variant="filled">
+                <span data-i18n="btn_verify"></span>
+            </mdui-button>
+            <div class="status-container" id="keyStatusContainer"></div>
+            <div id="keyResult" class="result"></div>
+        </div>
     </div>
 
-    <!-- ======== 设置对话框 ======== -->
-    <mdui-dialog id="settingsDialog" fullscreen>
-        <div class="dialog-header">
-            <i class="material-icons" aria-hidden="true" style="opacity:0"></i>
-            <div class="dialog-title">
-                <div class="dialog-title-main" data-i18n="settings_title"></div>
-                <div class="dialog-title-sub" data-i18n="settings_subtitle"></div>
+    <!-- ======== 主系统页 ======== -->
+    <div class="container page" id="mainPage">
+        <div class="header">
+            <div class="header-controls">
+                <mdui-button-icon icon="settings" class="icon-btn" id="mainSettingsBtn"></mdui-button-icon>
             </div>
-            <mdui-button-icon icon="close" id="closeSettingsBtn"></mdui-button-icon>
+            <div class="header-content">
+                <h1 data-i18n="main_page_title"></h1>
+                <p data-i18n="main_page_subtitle"></p>
+            </div>
         </div>
+        <div class="content">
+            <mdui-text-field id="userInput" variant="outlined"
+                             data-i18n-label="cmd_label" data-i18n-placeholder="cmd_placeholder"></mdui-text-field>
+            <mdui-button id="submitBtn" class="submit-btn" variant="filled">
+                <span data-i18n="btn_execute"></span>
+            </mdui-button>
+            <div class="status-container" id="statusContainer"></div>
+            <div id="result" class="result"></div>
+
+            <!-- 命令历史记录 -->
+            <div class="history-container" id="historyContainer">
+                <div class="history-title">
+                    <span data-i18n="history_title"></span>
+                    <mdui-button-icon icon="clear_all" class="history-action-btn" id="clearHistoryBtn"></mdui-button-icon>
+                </div>
+                <mdui-list id="historyList"></mdui-list>
+            </div>
+
+            <!-- 收藏夹 -->
+            <div class="favorites-container" id="favoritesContainer">
+                <div class="favorites-title">
+                    <span data-i18n="favorites_title"></span>
+                    <mdui-button-icon icon="star_outline" class="history-action-btn" id="addCurrentToFavoritesBtn"></mdui-button-icon>
+                </div>
+                <mdui-list id="favoritesList"></mdui-list>
+            </div>
+
+            <div class="hint show" id="formatHint"></div>
+        </div>
+    </div>
+
+    <!-- ======== 无权限页 ======== -->
+    <div class="container page" id="lockedPage">
+        <div class="header locked-header">
+            <div class="header-controls">
+                <mdui-button-icon icon="settings" class="icon-btn" id="lockedSettingsBtn"></mdui-button-icon>
+            </div>
+            <div class="header-content">
+                <h1 data-i18n="locked_page_title"></h1>
+                <p data-i18n="locked_page_subtitle"></p>
+            </div>
+        </div>
+        <div class="content">
+            <mdui-text-field id="lockedInput" variant="outlined" disabled
+                             data-i18n-label="locked_label" data-i18n-placeholder="locked_placeholder"></mdui-text-field>
+            <mdui-button id="lockedSubmitBtn" class="submit-btn locked-btn" variant="filled">
+                <span data-i18n="btn_no_permission"></span>
+            </mdui-button>
+            <div class="status-container">
+                <div class="status-indicator show error">
+                    <div class="status-icon error"><mdui-icon name="block"></mdui-icon></div>
+                    <div class="status-content error">
+                        <div class="status-title" data-i18n="locked_badge_title"></div>
+                        <div data-i18n="locked_badge_desc"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="lockedResult" class="result"></div>
+            <div class="hint show locked-hint"></div>
+        </div>
+    </div>
+
+    <!-- ======== 设置面板（全屏滑动） ======== -->
+    <div class="settings-container" id="settingsDialog">
+        <div class="settings-header">
+            <div class="header-content">
+                <h2 class="settings-title" data-i18n="settings_title"></h2>
+                <p class="settings-subtitle" data-i18n="settings_subtitle"></p>
+            </div>
+            <mdui-button-icon icon="close" class="close-btn" id="closeSettingsBtn"></mdui-button-icon>
+        </div>
+
         <div class="settings-content">
 
             <!-- 语言 -->
             <section class="settings-section">
                 <h3 data-i18n="section_language"></h3>
-                <mdui-radio-group id="langGroup">
-                    <mdui-radio value="auto" data-i18n-label="lang_auto"></mdui-radio>
-                    <mdui-radio value="zh-CN">简体中文</mdui-radio>
-                    <mdui-radio value="zh-TW">繁體中文（臺灣）</mdui-radio>
-                    <mdui-radio value="en">English</mdui-radio>
-                    <mdui-radio value="ja">日本語</mdui-radio>
-                </mdui-radio-group>
+                <div class="language-options" id="languageOptions">
+                    <div class="language-option" data-lang="auto" role="button" tabindex="0">
+                        <div class="language-flag"><mdui-icon name="brightness_auto"></mdui-icon></div>
+                        <span class="language-name" data-i18n="lang_auto"></span>
+                        <mdui-icon name="check" class="language-check"></mdui-icon>
+                    </div>
+                    <div class="language-option" data-lang="zh-CN" role="button" tabindex="0">
+                        <div class="language-flag">简</div>
+                        <span class="language-name">简体中文</span>
+                        <mdui-icon name="check" class="language-check"></mdui-icon>
+                    </div>
+                    <div class="language-option" data-lang="zh-TW" role="button" tabindex="0">
+                        <div class="language-flag">繁</div>
+                        <span class="language-name">繁體中文（臺灣）</span>
+                        <mdui-icon name="check" class="language-check"></mdui-icon>
+                    </div>
+                    <div class="language-option" data-lang="en" role="button" tabindex="0">
+                        <div class="language-flag">EN</div>
+                        <span class="language-name">English</span>
+                        <mdui-icon name="check" class="language-check"></mdui-icon>
+                    </div>
+                    <div class="language-option" data-lang="ja" role="button" tabindex="0">
+                        <div class="language-flag">日</div>
+                        <span class="language-name">日本語</span>
+                        <mdui-icon name="check" class="language-check"></mdui-icon>
+                    </div>
+                </div>
             </section>
 
             <!-- 主题 -->
             <section class="settings-section">
                 <h3 data-i18n="section_theme"></h3>
-                <mdui-segmented-button-group id="themeGroup" selects="single">
-                    <mdui-segmented-button value="light"><i class="material-icons" style="font-size:18px">light_mode</i><span data-i18n="theme_light"></span></mdui-segmented-button>
-                    <mdui-segmented-button value="dark"><i class="material-icons" style="font-size:18px">dark_mode</i><span data-i18n="theme_dark"></span></mdui-segmented-button>
-                    <mdui-segmented-button value="auto"><i class="material-icons" style="font-size:18px">brightness_auto</i><span data-i18n="theme_system"></span></mdui-segmented-button>
-                </mdui-segmented-button-group>
+                <div class="theme-options" id="themeOptions">
+                    <div class="theme-option" data-theme-value="light" role="button" tabindex="0">
+                        <div class="theme-icon"><mdui-icon name="light_mode"></mdui-icon></div>
+                        <span class="theme-name" data-i18n="theme_light"></span>
+                    </div>
+                    <div class="theme-option" data-theme-value="dark" role="button" tabindex="0">
+                        <div class="theme-icon"><mdui-icon name="dark_mode"></mdui-icon></div>
+                        <span class="theme-name" data-i18n="theme_dark"></span>
+                    </div>
+                    <div class="theme-option" data-theme-value="auto" role="button" tabindex="0">
+                        <div class="theme-icon"><mdui-icon name="brightness_auto"></mdui-icon></div>
+                        <span class="theme-name" data-i18n="theme_system"></span>
+                    </div>
+                </div>
             </section>
 
             <!-- 主题颜色 -->
             <section class="settings-section">
                 <h3 data-i18n="section_theme_color"></h3>
-                <div class="monet-grid" id="monetOptions">
+                <div class="monet-options" id="monetOptions">
                     <div class="monet-option active" data-scheme="basil" role="button" tabindex="0">
-                        <span class="monet-swatch" style="--c1:#286C2A;--c2:#546E50;--c3:#546E50"></span>
+                        <div class="monet-preview"><div class="monet-color-gradient"><div class="monet-color-primary"></div><div class="monet-color-secondary"></div><div class="monet-color-tertiary"></div></div></div>
                         <span class="monet-name" data-i18n="scheme_basil"></span>
                         <mdui-icon name="check" class="monet-check"></mdui-icon>
                     </div>
                     <div class="monet-option" data-scheme="blue" role="button" tabindex="0">
-                        <span class="monet-swatch" style="--c1:#1E88E5;--c2:#5C6BC0;--c3:#42A5F5"></span>
+                        <div class="monet-preview"><div class="monet-color-gradient"><div class="monet-color-primary"></div><div class="monet-color-secondary"></div><div class="monet-color-tertiary"></div></div></div>
                         <span class="monet-name" data-i18n="scheme_blue"></span>
                         <mdui-icon name="check" class="monet-check"></mdui-icon>
                     </div>
                     <div class="monet-option" data-scheme="purple" role="button" tabindex="0">
-                        <span class="monet-swatch" style="--c1:#6750A4;--c2:#958DA5;--c3:#B58392"></span>
+                        <div class="monet-preview"><div class="monet-color-gradient"><div class="monet-color-primary"></div><div class="monet-color-secondary"></div><div class="monet-color-tertiary"></div></div></div>
                         <span class="monet-name" data-i18n="scheme_purple"></span>
                         <mdui-icon name="check" class="monet-check"></mdui-icon>
                     </div>
                     <div class="monet-option" data-scheme="orange" role="button" tabindex="0">
-                        <span class="monet-swatch" style="--c1:#F97316;--c2:#A78BFA;--c3:#FBBF24"></span>
+                        <div class="monet-preview"><div class="monet-color-gradient"><div class="monet-color-primary"></div><div class="monet-color-secondary"></div><div class="monet-color-tertiary"></div></div></div>
                         <span class="monet-name" data-i18n="scheme_orange"></span>
                         <mdui-icon name="check" class="monet-check"></mdui-icon>
                     </div>
                     <div class="monet-option" data-scheme="pink" role="button" tabindex="0">
-                        <span class="monet-swatch" style="--c1:#DB2777;--c2:#8B5CF6;--c3:#EC4899"></span>
+                        <div class="monet-preview"><div class="monet-color-gradient"><div class="monet-color-primary"></div><div class="monet-color-secondary"></div><div class="monet-color-tertiary"></div></div></div>
                         <span class="monet-name" data-i18n="scheme_pink"></span>
                         <mdui-icon name="check" class="monet-check"></mdui-icon>
                     </div>
@@ -190,60 +221,76 @@
             <!-- 背景 -->
             <section class="settings-section">
                 <h3 data-i18n="section_background"></h3>
-                <mdui-segmented-button-group id="backgroundGroup" selects="single">
-                    <mdui-segmented-button value="default"><span data-i18n="bg_default"></span></mdui-segmented-button>
-                    <mdui-segmented-button value="custom"><span data-i18n="bg_custom"></span></mdui-segmented-button>
-                </mdui-segmented-button-group>
+                <div class="background-options" id="backgroundOptions">
+                    <div class="background-option active" data-bg="default" role="button" tabindex="0">
+                        <div class="background-preview"><mdui-icon name="image"></mdui-icon></div>
+                        <span class="background-name" data-i18n="bg_default"></span>
+                        <mdui-icon name="check" class="background-check"></mdui-icon>
+                    </div>
+                    <div class="background-option" data-bg="custom" role="button" tabindex="0">
+                        <div class="background-preview"><mdui-icon name="wallpaper"></mdui-icon></div>
+                        <span class="background-name" data-i18n="bg_custom"></span>
+                        <mdui-icon name="check" class="background-check"></mdui-icon>
+                    </div>
+                </div>
 
-                <div class="background-upload" id="customBackgroundUpload" hidden>
-                    <mdui-button variant="tonal" id="bgUploadBtn">
-                        <mdui-icon slot="icon" name="upload"></mdui-icon>
-                        <span data-i18n="bg_upload_hint"></span>
-                    </mdui-button>
-                    <input type="file" id="backgroundFileInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
-                    <div class="upload-status" id="uploadStatus"></div>
-                    <div class="background-custom-preview" id="customBackgroundInfo" hidden>
-                        <img id="customBackgroundImage" alt="">
-                        <mdui-button variant="text" color="error" id="deleteCustomBackgroundBtn">
-                            <span data-i18n="bg_delete"></span>
+                <div class="background-custom-upload" id="customBackgroundUpload" style="display:none">
+                    <div class="md3-file-upload">
+                        <mdui-button variant="tonal" id="bgUploadBtn" class="bg-upload-btn">
+                            <mdui-icon slot="icon" name="upload"></mdui-icon>
+                            <span data-i18n="bg_upload_hint"></span>
                         </mdui-button>
+                        <input type="file" id="backgroundFileInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+                    </div>
+                    <div class="upload-status" id="uploadStatus"></div>
+                    <div class="background-custom-preview" id="customBackgroundInfo" style="display:none">
+                        <img id="customBackgroundImage" alt="">
+                        <div class="background-custom-info">
+                            <span class="background-custom-name"></span>
+                        </div>
+                        <div class="background-custom-actions">
+                            <mdui-button variant="text" color="error" class="background-action-btn delete" id="deleteCustomBackgroundBtn">
+                                <span data-i18n="bg_delete"></span>
+                            </mdui-button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 背景模糊预览 -->
                 <div class="blur-control-section">
-                    <div class="blur-visual" id="blurVisual"></div>
-                    <span class="blur-label" data-i18n="bg_blur_preview"></span>
+                    <div class="blur-visual" id="blurVisual"><div class="blur-effect"></div></div>
+                    <div class="blur-label" data-i18n="bg_blur_preview"></div>
                 </div>
             </section>
 
             <div class="version-info">
-                <mdui-chip variant="assist" id="versionBadge"><span data-i18n="version_tag"></span></mdui-chip>
+                <div class="version-badge" id="versionBadge"><span data-i18n="version_tag"></span></div>
             </div>
         </div>
-    </mdui-dialog>
+    </div>
 
-    <!-- ======== 调试对话框 ======== -->
-    <mdui-dialog id="debugDialog" fullscreen>
-        <div class="dialog-header">
-            <div class="dialog-title">
-                <div class="dialog-title-main" data-i18n="debug_title"></div>
-                <div class="dialog-title-sub" data-i18n="debug_subtitle"></div>
+    <!-- ======== 调试面板（全屏滑动） ======== -->
+    <div class="debug-container" id="debugDialog">
+        <div class="debug-header">
+            <div class="header-content">
+                <h2 class="debug-title" data-i18n="debug_title"></h2>
+                <p class="debug-subtitle" data-i18n="debug_subtitle"></p>
             </div>
-            <mdui-button-icon icon="close" id="closeDebugBtn"></mdui-button-icon>
+            <mdui-button-icon icon="close" class="close-btn" id="closeDebugBtn"></mdui-button-icon>
         </div>
+
         <div class="debug-content">
 
             <div class="debug-status">
-                <mdui-icon name="bug_report"></mdui-icon>
-                <div>
-                    <div class="status-title" data-i18n="debug_active"></div>
+                <div class="debug-status-icon"><mdui-icon name="bug_report"></mdui-icon></div>
+                <div class="debug-status-content">
+                    <div class="debug-status-title" data-i18n="debug_active"></div>
                     <div class="debug-status-line"></div>
                 </div>
             </div>
 
-            <div class="debug-category">
-                <div class="debug-category-title"><mdui-icon name="palette"></mdui-icon><span data-i18n="sec_visual"></span></div>
+            <div class="debug-section">
+                <h3 class="debug-category-title"><mdui-icon name="palette"></mdui-icon><span data-i18n="sec_visual"></span></h3>
                 <div class="debug-category-subtitle" data-i18n="sec_visual_sub"></div>
             </div>
             <div class="debug-controls">
@@ -265,15 +312,18 @@
                 </div>
                 <div class="debug-control">
                     <div class="debug-control-title"><span data-i18n="ctrl_animation"></span></div>
-                    <mdui-switch id="animationsSwitch" checked></mdui-switch>
+                    <div class="switch-container">
+                        <span class="switch-label" data-i18n="ctrl_animation"></span>
+                        <mdui-switch id="animationsSwitch" checked></mdui-switch>
+                    </div>
                     <div class="debug-actions">
                         <mdui-button variant="tonal" id="applyAnimationsBtn"><span data-i18n="btn_apply"></span></mdui-button>
                     </div>
                 </div>
             </div>
 
-            <div class="debug-category">
-                <div class="debug-category-title"><mdui-icon name="security"></mdui-icon><span data-i18n="sec_security"></span></div>
+            <div class="debug-section">
+                <h3 class="debug-category-title"><mdui-icon name="security"></mdui-icon><span data-i18n="sec_security"></span></h3>
                 <div class="debug-category-subtitle" data-i18n="sec_security_sub"></div>
             </div>
             <div class="debug-controls">
@@ -287,30 +337,39 @@
                 </div>
             </div>
 
-            <div class="debug-category">
-                <div class="debug-category-title"><mdui-icon name="storage"></mdui-icon><span data-i18n="sec_storage"></span></div>
+            <div class="debug-section">
+                <h3 class="debug-category-title"><mdui-icon name="storage"></mdui-icon><span data-i18n="sec_storage"></span></h3>
                 <div class="debug-category-subtitle" data-i18n="sec_storage_sub"></div>
             </div>
             <div class="debug-controls">
                 <div class="debug-control">
                     <div class="debug-control-title"><span data-i18n="ctrl_local_storage"></span></div>
-                    <mdui-switch id="localStorageSwitch" checked></mdui-switch>
+                    <div class="switch-container">
+                        <span class="switch-label" data-i18n="ctrl_local_storage"></span>
+                        <mdui-switch id="localStorageSwitch" checked></mdui-switch>
+                    </div>
                     <div class="debug-actions"><mdui-button variant="tonal" id="applyLocalStorageBtn"><span data-i18n="btn_apply"></span></mdui-button></div>
                 </div>
                 <div class="debug-control">
                     <div class="debug-control-title"><span data-i18n="ctrl_history"></span></div>
-                    <mdui-switch id="historySwitch" checked></mdui-switch>
+                    <div class="switch-container">
+                        <span class="switch-label" data-i18n="ctrl_history"></span>
+                        <mdui-switch id="historySwitch" checked></mdui-switch>
+                    </div>
                     <div class="debug-actions"><mdui-button variant="tonal" id="applyHistoryBtn"><span data-i18n="btn_apply"></span></mdui-button></div>
                 </div>
                 <div class="debug-control">
                     <div class="debug-control-title"><span data-i18n="ctrl_favorites"></span></div>
-                    <mdui-switch id="favoritesSwitch" checked></mdui-switch>
+                    <div class="switch-container">
+                        <span class="switch-label" data-i18n="ctrl_favorites"></span>
+                        <mdui-switch id="favoritesSwitch" checked></mdui-switch>
+                    </div>
                     <div class="debug-actions"><mdui-button variant="tonal" id="applyFavoritesBtn"><span data-i18n="btn_apply"></span></mdui-button></div>
                 </div>
             </div>
 
-            <div class="debug-category">
-                <div class="debug-category-title"><mdui-icon name="settings"></mdui-icon><span data-i18n="sec_system"></span></div>
+            <div class="debug-section">
+                <h3 class="debug-category-title"><mdui-icon name="settings"></mdui-icon><span data-i18n="sec_system"></span></h3>
                 <div class="debug-category-subtitle" data-i18n="sec_system_sub"></div>
             </div>
             <div class="debug-controls">
@@ -324,10 +383,10 @@
             </div>
 
             <div class="version-info">
-                <mdui-chip variant="assist" id="debugVersionBadge"><span data-i18n="debug_version_tag"></span></mdui-chip>
+                <div class="version-badge" id="debugVersionBadge"><span data-i18n="debug_version_tag"></span></div>
             </div>
         </div>
-    </mdui-dialog>
+    </div>
 
     <!-- ======== 确认对话框 ======== -->
     <mdui-dialog id="confirmDialog">

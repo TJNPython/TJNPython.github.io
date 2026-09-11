@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const debugDialog = $('debugDialog'), closeDebugBtn = $('closeDebugBtn');
   const keySettingsBtn = $('keySettingsBtn'), mainSettingsBtn = $('mainSettingsBtn'), lockedSettingsBtn = $('lockedSettingsBtn');
 
-  const langGroup = $('langGroup'), themeGroup = $('themeGroup'), backgroundGroup = $('backgroundGroup');
+  const languageOptions = document.querySelectorAll('.language-option');
+  const themeOptions = document.querySelectorAll('.theme-option');
+  const backgroundOptions = document.querySelectorAll('.background-option');
   const monetOptions = document.querySelectorAll('.monet-option');
 
   const backgroundFileInput = $('backgroundFileInput'), bgUploadBtn = $('bgUploadBtn'), uploadStatus = $('uploadStatus');
@@ -188,9 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function showStatusMessage(message, type, container) {
     const icon = type === 'success' ? 'check_circle' : 'error';
     container.innerHTML =
-      `<div class="status-indicator ${type}">` +
-      `<mdui-icon name="${icon}"></mdui-icon>` +
-      `<div class="status-msg">${esc(message)}</div>` +
+      `<div class="status-indicator show ${type}">` +
+      `<div class="status-icon ${type}"><mdui-icon name="${icon}"></mdui-icon></div>` +
+      `<div class="status-content ${type}"><div class="status-title">${esc(message)}</div></div>` +
       `</div>`;
   }
 
@@ -207,10 +209,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const showDebugStatus = snack;
 
   /* ---------------- 对话框 ---------------- */
-  function openSettings() { settingsDialog.open = true; updateBlurPreview(); syncSettingsUI(); }
-  function closeSettings() { settingsDialog.open = false; }
-  function openDebug() { debugDialog.open = true; updateStatusUI(); }
-  function closeDebug() { debugDialog.open = false; }
+  function openSettings() {
+    settingsDialog.classList.add('open');
+    settingsDialog.classList.remove('closing');
+    updateBlurPreview();
+    syncSettingsUI();
+  }
+  function closeSettings() {
+    settingsDialog.classList.add('closing');
+    setTimeout(() => settingsDialog.classList.remove('open', 'closing'), 300);
+  }
+  function openDebug() {
+    debugDialog.classList.add('open');
+    debugDialog.classList.remove('closing');
+    updateStatusUI();
+  }
+  function closeDebug() {
+    debugDialog.classList.add('closing');
+    setTimeout(() => debugDialog.classList.remove('open', 'closing'), 300);
+  }
 
   function openConfirmDialog(title, message, needsKey, actionCallback) {
     currentConfirmAction = actionCallback;
@@ -239,25 +256,30 @@ document.addEventListener('DOMContentLoaded', () => {
   closeDebugBtn.addEventListener('click', closeDebug);
 
   /* ---------------- 设置面板交互 ---------------- */
-  langGroup.addEventListener('change', (e) => applyLanguage(e.detail.value));
-  themeGroup.addEventListener('change', (e) => applyTheme(e.detail.value));
-  backgroundGroup.addEventListener('change', (e) => {
-    applyBackground(e.detail.value);
-    customBackgroundUpload.hidden = e.detail.value !== 'custom';
+  const bindCard = (opts, handler) => {
+    opts.forEach((opt) => {
+      const activate = () => handler(opt);
+      opt.addEventListener('click', activate);
+      opt.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+    });
+  };
+
+  bindCard(languageOptions, (opt) => applyLanguage(opt.getAttribute('data-lang')));
+  bindCard(themeOptions, (opt) => applyTheme(opt.getAttribute('data-theme-value')));
+  bindCard(backgroundOptions, (opt) => {
+    const val = opt.getAttribute('data-bg');
+    applyBackground(val);
+    customBackgroundUpload.style.display = val === 'custom' ? 'flex' : 'none';
     syncSettingsUI();
   });
-
-  monetOptions.forEach((opt) => {
-    const activate = () => { applyMonetScheme(opt.getAttribute('data-scheme')); showDebugStatus(t('monetApplied')); };
-    opt.addEventListener('click', activate);
-    opt.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
-  });
+  bindCard(monetOptions, (opt) => { applyMonetScheme(opt.getAttribute('data-scheme')); showDebugStatus(t('monetApplied')); });
 
   function syncSettingsUI() {
     const storedLang = localStorage.getItem('language');
-    langGroup.value = storedLang === 'auto' ? 'auto' : (currentLanguage || 'zh-CN');
-    themeGroup.value = currentTheme;
-    backgroundGroup.value = currentBackground;
+    const langVal = storedLang === 'auto' ? 'auto' : (currentLanguage || 'zh-CN');
+    languageOptions.forEach((o) => o.classList.toggle('active', o.getAttribute('data-lang') === langVal));
+    themeOptions.forEach((o) => o.classList.toggle('active', o.getAttribute('data-theme-value') === currentTheme));
+    backgroundOptions.forEach((o) => o.classList.toggle('active', o.getAttribute('data-bg') === currentBackground));
     monetOptions.forEach((o) => o.classList.toggle('active', o.getAttribute('data-scheme') === currentMonetScheme));
   }
 
@@ -276,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
       customBackgroundData = JSON.stringify({ dataUrl: event.target.result, name: file.name });
       localStorage.setItem('customBackground', customBackgroundData);
       customBackgroundImage.src = event.target.result;
-      customBackgroundInfo.hidden = false;
+      customBackgroundInfo.style.display = 'flex';
       uploadStatus.textContent = t('backgroundUploadSuccess');
       uploadStatus.className = 'upload-status success';
       if (currentBackground === 'custom') applyBackground('custom');
@@ -289,9 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
     openConfirmDialog(t('confirmDeleteBackgroundTitle'), t('confirmDeleteBackground'), false, () => {
       localStorage.removeItem('customBackground');
       customBackgroundData = null;
-      customBackgroundInfo.hidden = true;
-      customBackgroundUpload.hidden = true;
-      backgroundGroup.value = 'default';
+      customBackgroundInfo.style.display = 'none';
+      customBackgroundUpload.style.display = 'none';
       applyBackground('default');
       syncSettingsUI();
     });
@@ -545,10 +566,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (customBackgroundData) {
     try {
       const bg = JSON.parse(customBackgroundData);
-      if (bg.dataUrl) { customBackgroundImage.src = bg.dataUrl; customBackgroundInfo.hidden = false; }
+      if (bg.dataUrl) { customBackgroundImage.src = bg.dataUrl; customBackgroundInfo.style.display = 'flex'; }
     } catch (e) { /* ignore */ }
   }
-  if (currentBackground === 'custom') customBackgroundUpload.hidden = false;
+  if (currentBackground === 'custom') customBackgroundUpload.style.display = 'flex';
 
   updateBlurPreview();
 });
