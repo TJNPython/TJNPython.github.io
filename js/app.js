@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const userInput = $('userInput'), submitBtn = $('submitBtn');
   const resultDiv = $('result'), statusContainer = $('statusContainer');
   const lockedInput = $('lockedInput'), lockedSubmitBtn = $('lockedSubmitBtn'), lockedResult = $('lockedResult');
-  const historyContainer = $('historyContainer'), historyList = $('historyList'), clearHistoryBtn = $('clearHistoryBtn');
-  const favoritesContainer = $('favoritesContainer'), favoritesList = $('favoritesList'), addCurrentToFavoritesBtn = $('addCurrentToFavoritesBtn');
+  const historyList = $('historyList'), clearHistoryBtn = $('clearHistoryBtn');
+  const favoritesList = $('favoritesList'), addCurrentToFavoritesBtn = $('addCurrentToFavoritesBtn');
   const formatHint = $('formatHint');
   const lockedHint = document.querySelector('.locked-hint');
 
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const customBackgroundUpload = $('customBackgroundUpload'), customBackgroundInfo = $('customBackgroundInfo');
   const customBackgroundImage = $('customBackgroundImage'), deleteCustomBackgroundBtn = $('deleteCustomBackgroundBtn');
 
-  const blurVisual = $('blurVisual'), blurOverlay = $('blurOverlay'), backgroundImage = $('backgroundImage');
+  const blurVisual = $('blurVisual'), blurOverlay = $('blurOverlay'), backgroundContainer = $('backgroundContainer');
   const debugBlurVisual = $('debugBlurVisual'), debugBlurEffect = $('debugBlurEffect');
   const versionBadge = $('versionBadge'), debugVersionBadge = $('debugVersionBadge');
 
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const confirmDialog = $('confirmDialog'), confirmTitle = $('confirmTitle'), confirmMessage = $('confirmMessage');
   const confirmInputContainer = $('confirmInputContainer'), confirmKeyInput = $('confirmKeyInput');
-  const confirmCancelBtn = $('confirmCancelBtn'), confirmConfirmBtn = $('confirmConfirmBtn');
+  const confirmCancelBtn = $('confirmCancelBtn'), confirmConfirmBtn = $('confirmConfirmBtn'), closeConfirmBtn = $('closeConfirmBtn');
   const snackbar = $('snackbar');
   const debugStatusLine = document.querySelector('.debug-status-line');
 
@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentMonetScheme = localStorage.getItem('monetScheme') || 'basil';
   let currentBackground = localStorage.getItem('background') || 'default';
   let customBackgroundData = localStorage.getItem('customBackground');
+  let currentBgUrl = '';
   let debugBackgroundBlur = parseInt(localStorage.getItem('debugBackgroundBlur')) || 5;
   let debugAttempts = parseInt(localStorage.getItem('debugAttempts')) || 3;
   let debugModalBlur = parseInt(localStorage.getItem('debugModalBlur')) || 12;
@@ -210,14 +211,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.dataUrl) url = data.dataUrl;
       } catch (e) { /* 忽略损坏数据 */ }
     }
-    backgroundImage.src = url;
+    currentBgUrl = url;
+    if (backgroundContainer) backgroundContainer.style.backgroundImage = `url("${url}")`;
     updateBlurPreview(url);
   }
 
   function updateBlurPreview(url) {
-    const src = url || (backgroundImage ? backgroundImage.src : '');
+    const src = url || currentBgUrl;
     if (blurVisual) blurVisual.style.backgroundImage = `url(${src})`;
     if (debugBlurVisual) debugBlurVisual.style.backgroundImage = `url(${src})`;
+  }
+
+  // 压缩/缩放上传的背景图，使其在 localStorage 配额内可靠保存（真实照片尤其需要）
+  function compressBackground(dataUrl, maxDim = 1920, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          let out = canvas.toDataURL('image/jpeg', quality);
+          let q = quality;
+          while (out.length > 2.4 * 1024 * 1024 && q > 0.35) { q -= 0.08; out = canvas.toDataURL('image/jpeg', q); }
+          resolve(out);
+        } catch (e) { reject(e); }
+      };
+      img.onerror = () => reject(new Error('decode'));
+      img.src = dataUrl;
+    });
   }
 
   /* ---------------- 状态与提示 ---------------- */
@@ -279,9 +306,15 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmMessage.textContent = message;
     confirmInputContainer.hidden = !needsKey;
     confirmKeyInput.value = '';
-    confirmDialog.open = true;
+    confirmDialog.classList.remove('closing');
+    confirmDialog.classList.add('open');
   }
-  confirmCancelBtn.addEventListener('click', () => { confirmDialog.open = false; currentConfirmAction = null; });
+  function closeConfirm() {
+    confirmDialog.classList.add('closing');
+    setTimeout(() => confirmDialog.classList.remove('open', 'closing'), 300);
+  }
+  confirmCancelBtn.addEventListener('click', () => { closeConfirm(); currentConfirmAction = null; });
+  closeConfirmBtn.addEventListener('click', () => { closeConfirm(); currentConfirmAction = null; });
   confirmConfirmBtn.addEventListener('click', () => {
     if (!currentConfirmAction) return;
     const needsKey = !confirmInputContainer.hidden;
@@ -289,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (needsKey && !key) { showDebugStatus(t('emptyKeyError')); return; }
     const action = currentConfirmAction;
     currentConfirmAction = null;
-    confirmDialog.open = false;
+    closeConfirm();
     action(key);
   });
 
@@ -338,21 +371,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!valid.includes(file.type)) { uploadStatus.textContent = t('invalidImageType'); uploadStatus.className = 'upload-status error'; return; }
     if (file.size > 10 * 1024 * 1024) { uploadStatus.textContent = t('imageTooLarge'); uploadStatus.className = 'upload-status error'; return; }
     const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target.result;
+    reader.onload = async (event) => {
       try {
-        localStorage.setItem('customBackground', JSON.stringify({ dataUrl, name: file.name }));
+        const dataUrl = await compressBackground(event.target.result);
+        try {
+          localStorage.setItem('customBackground', JSON.stringify({ dataUrl, name: file.name }));
+        } catch (err) {
+          uploadStatus.textContent = t('backgroundStoreError');
+          uploadStatus.className = 'upload-status error';
+          return;
+        }
+        customBackgroundData = JSON.stringify({ dataUrl, name: file.name });
+        customBackgroundImage.src = dataUrl;
+        customBackgroundInfo.style.display = 'flex';
+        customBackgroundUpload.style.display = 'flex';
+        uploadStatus.textContent = t('backgroundUploadSuccess');
+        uploadStatus.className = 'upload-status success';
+        // 上传成功后自动启用自定义背景，并同步选中状态
+        applyBackground('custom');
+        syncSettingsUI();
       } catch (err) {
-        uploadStatus.textContent = t('backgroundStoreError');
+        uploadStatus.textContent = t('uploadError');
         uploadStatus.className = 'upload-status error';
-        return;
       }
-      customBackgroundData = JSON.stringify({ dataUrl, name: file.name });
-      customBackgroundImage.src = dataUrl;
-      customBackgroundInfo.style.display = 'flex';
-      uploadStatus.textContent = t('backgroundUploadSuccess');
-      uploadStatus.className = 'upload-status success';
-      if (currentBackground === 'custom') applyBackground('custom');
     };
     reader.onerror = () => { uploadStatus.textContent = t('uploadError'); uploadStatus.className = 'upload-status error'; };
     reader.readAsDataURL(file);
@@ -398,19 +439,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (debugBlurEffect) debugBlurEffect.style.webkitBackdropFilter = `blur(${debugBackgroundBlur}px)`;
   }
 
-  blurSlider.addEventListener('input', (e) => {
-    blurValue.textContent = e.detail.value + 'px';
-    debugBackgroundBlur = parseInt(e.detail.value);
-    syncBlurPreview();
-  });
+  const syncBlurChip = () => { const v = Number(blurSlider.value); blurValue.textContent = v + 'px'; debugBackgroundBlur = v; syncBlurPreview(); };
+  blurSlider.addEventListener('input', syncBlurChip);
+  blurSlider.addEventListener('change', syncBlurChip);
   resetBlurBtn.addEventListener('click', () => { debugBackgroundBlur = 5; blurSlider.value = 5; blurValue.textContent = '5px'; syncBlurPreview(); showDebugStatus(t('blurReset')); });
   applyBlurBtn.addEventListener('click', () => { debugBackgroundBlur = parseInt(blurSlider.value); localStorage.setItem('debugBackgroundBlur', debugBackgroundBlur); applyDebugSettings(); showDebugStatus(t('blurApplied')); });
 
-  modalBlurSlider.addEventListener('input', (e) => { modalBlurValue.textContent = e.detail.value + 'px'; });
+  const syncModalBlurChip = () => { modalBlurValue.textContent = Number(modalBlurSlider.value) + 'px'; };
+  modalBlurSlider.addEventListener('input', syncModalBlurChip);
+  modalBlurSlider.addEventListener('change', syncModalBlurChip);
   resetModalBlurBtn.addEventListener('click', () => { debugModalBlur = 12; modalBlurSlider.value = 12; modalBlurValue.textContent = '12px'; showDebugStatus(t('modalBlurReset')); });
   applyModalBlurBtn.addEventListener('click', () => { debugModalBlur = parseInt(modalBlurSlider.value); localStorage.setItem('debugModalBlur', debugModalBlur); applyDebugSettings(); showDebugStatus(t('modalBlurApplied')); });
 
-  attemptsSlider.addEventListener('input', (e) => { attemptsValue.textContent = String(e.detail.value); });
+  const syncAttemptsChip = () => { attemptsValue.textContent = String(Number(attemptsSlider.value)); };
+  attemptsSlider.addEventListener('input', syncAttemptsChip);
+  attemptsSlider.addEventListener('change', syncAttemptsChip);
   resetAttemptsBtn.addEventListener('click', () => { debugAttempts = 3; attemptsSlider.value = 3; attemptsValue.textContent = '3'; showDebugStatus(t('attemptsReset')); });
   applyAttemptsBtn.addEventListener('click', () => { debugAttempts = parseInt(attemptsSlider.value); localStorage.setItem('debugAttempts', debugAttempts); attempts = debugAttempts; updateAttemptsCounter(); showDebugStatus(t('attemptsApplied')); });
 

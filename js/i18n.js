@@ -117,6 +117,7 @@ window.I18N = (() => {
     modalBlurReset: { 'zh-CN': '模态模糊已重置为默认值', 'zh-TW': '模態模糊已重置為默認值', en: 'Modal blur reset to default', ja: 'モーダルぼかしがデフォルトにリセットされました' },
     modalBlurApplied: { 'zh-CN': '模态模糊设置已应用', 'zh-TW': '模態模糊設定已應用', en: 'Modal blur settings applied', ja: 'モーダルぼかし設定が適用されました' },
     confirmResetAllTitle: { 'zh-CN': '重置所有设置', 'zh-TW': '重置所有設定', en: 'Reset All Settings', ja: 'すべての設定をリセット' },
+    confirm_subtitle: { 'zh-CN': '请确认你的操作', 'zh-TW': '請確認你的操作', en: 'Please confirm your action', ja: '操作を確認してください' },
     confirmResetAll: { 'zh-CN': '确定要重置所有设置吗？这将清除所有自定义设置。', 'zh-TW': '確定要重置所有設定嗎？這將清除所有自定義設定。', en: 'Are you sure you want to reset all settings? This will clear all custom settings.', ja: 'すべての設定をリセットしてもよろしいですか？すべてのカスタム設定がクリアされます。' },
     confirmClearAllDataTitle: { 'zh-CN': '清除所有数据', 'zh-TW': '清除所有數據', en: 'Clear All Data', ja: 'すべてのデータをクリア' },
     confirmClearAllData: { 'zh-CN': '确定要清除所有数据吗？这将清除历史记录、收藏夹和背景设置，但保留调试设置。', 'zh-TW': '確定要清除所有數據嗎？這將清除歷史記錄、收藏夾和背景設定，但保留調試設定。', en: 'Are you sure you want to clear all data? This will clear history, favorites and background settings, but keep debug settings.', ja: 'すべてのデータをクリアしてもよろしいですか？履歴、お気に入り、背景設定がクリアされますが、デバッグ設定は保持されます。' },

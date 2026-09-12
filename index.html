@@ -19,9 +19,6 @@
 <body>
     <!-- 背景容器 -->
     <div class="background-container" id="backgroundContainer">
-        <img class="background-image" id="backgroundImage"
-             src="https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80"
-             alt="Background">
         <div class="blur-overlay" id="blurOverlay"></div>
     </div>
 
@@ -50,7 +47,7 @@
         </div>
     </div>
 
-    <!-- ======== 主系统页 ======== -->
+    <!-- ======== 主系统页（命令控制台） ======== -->
     <div class="container page" id="mainPage">
         <div class="header">
             <div class="header-controls">
@@ -63,30 +60,39 @@
         </div>
         <div class="content">
             <mdui-text-field id="userInput" variant="outlined"
-                             data-i18n-label="cmd_label" data-i18n-placeholder="cmd_placeholder"></mdui-text-field>
+                             data-i18n-label="cmd_label" data-i18n-placeholder="cmd_placeholder">
+                <mdui-icon slot="icon" name="terminal--outlined"></mdui-icon>
+            </mdui-text-field>
             <mdui-button id="submitBtn" class="submit-btn" variant="filled">
+                <mdui-icon slot="icon" name="send--outlined"></mdui-icon>
                 <span data-i18n="btn_execute"></span>
             </mdui-button>
             <div class="status-container" id="statusContainer"></div>
             <div id="result" class="result"></div>
 
             <!-- 命令历史记录 -->
-            <div class="history-container" id="historyContainer">
-                <div class="history-title">
-                    <span data-i18n="history_title"></span>
-                    <mdui-button-icon icon="clear_all--outlined" class="history-action-btn" id="clearHistoryBtn"></mdui-button-icon>
+            <mdui-card class="listing-card" variant="filled">
+                <div class="card-header">
+                    <div class="card-header-left">
+                        <mdui-icon name="history--outlined"></mdui-icon>
+                        <span data-i18n="history_title"></span>
+                    </div>
+                    <mdui-button-icon icon="clear_all--outlined" id="clearHistoryBtn"></mdui-button-icon>
                 </div>
-                <mdui-list id="historyList"></mdui-list>
-            </div>
+                <mdui-list class="card-list" id="historyList"></mdui-list>
+            </mdui-card>
 
             <!-- 收藏夹 -->
-            <div class="favorites-container" id="favoritesContainer">
-                <div class="favorites-title">
-                    <span data-i18n="favorites_title"></span>
-                    <mdui-button-icon icon="star_outline--outlined" class="history-action-btn" id="addCurrentToFavoritesBtn"></mdui-button-icon>
+            <mdui-card class="listing-card" variant="filled">
+                <div class="card-header">
+                    <div class="card-header-left">
+                        <mdui-icon name="star--outlined"></mdui-icon>
+                        <span data-i18n="favorites_title"></span>
+                    </div>
+                    <mdui-button-icon icon="star_border--outlined" id="addCurrentToFavoritesBtn"></mdui-button-icon>
                 </div>
-                <mdui-list id="favoritesList"></mdui-list>
-            </div>
+                <mdui-list class="card-list" id="favoritesList"></mdui-list>
+            </mdui-card>
 
             <div class="hint show" id="formatHint"></div>
         </div>
@@ -364,20 +370,26 @@
         </div>
     </div>
 
-    <!-- ======== 确认对话框 ======== -->
-    <mdui-dialog id="confirmDialog">
-        <div class="dialog-header">
-            <div class="dialog-title"><div class="dialog-title-main" id="confirmTitle"></div></div>
+    <!-- ======== 确认页（全屏） ======== -->
+    <div class="confirm-container" id="confirmDialog">
+        <div class="confirm-header">
+            <div class="header-content">
+                <h2 class="confirm-title" id="confirmTitle"></h2>
+                <p class="confirm-subtitle" data-i18n="confirm_subtitle"></p>
+            </div>
+            <mdui-button-icon icon="close--outlined" class="close-btn" id="closeConfirmBtn"></mdui-button-icon>
         </div>
-        <div id="confirmMessage" class="confirm-message"></div>
-        <div id="confirmInputContainer" hidden>
-            <mdui-text-field id="confirmKeyInput" type="password" variant="outlined" data-i18n-label="unlock_key_label"></mdui-text-field>
+        <div class="confirm-content">
+            <div id="confirmMessage" class="confirm-message"></div>
+            <div id="confirmInputContainer" hidden>
+                <mdui-text-field id="confirmKeyInput" type="password" variant="outlined" data-i18n-label="unlock_key_label"></mdui-text-field>
+            </div>
+            <div class="confirm-actions">
+                <mdui-button variant="text" id="confirmCancelBtn"><span data-i18n="btn_cancel"></span></mdui-button>
+                <mdui-button variant="tonal" id="confirmConfirmBtn"><span data-i18n="btn_confirm"></span></mdui-button>
+            </div>
         </div>
-        <div slot="action" class="debug-actions confirm-actions">
-            <mdui-button variant="text" id="confirmCancelBtn"><span data-i18n="btn_cancel"></span></mdui-button>
-            <mdui-button variant="tonal" id="confirmConfirmBtn"><span data-i18n="btn_confirm"></span></mdui-button>
-        </div>
-    </mdui-dialog>
+    </div>
 
     <!-- 全局提示 -->
     <mdui-snackbar id="snackbar"></mdui-snackbar>
