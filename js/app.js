@@ -1,12 +1,11 @@
-/* =========================================================
-   TJN-PYTHON SYSTEM — 应用逻辑（基于 mdui Web Components）
-   模块：多语言 / 主题 / 莫奈配色 / 背景 / 调试 / 命令控制台
-   ========================================================= */
+
+
 document.addEventListener('DOMContentLoaded', () => {
   const $ = (id) => document.getElementById(id);
   const root = document.documentElement;
 
-  /* ---------------- 元素引用 ---------------- */
+  
+
   const keyPage = $('keyPage'), mainPage = $('mainPage'), lockedPage = $('lockedPage');
   const keyInput = $('keyInput'), keySubmitBtn = $('keySubmitBtn');
   const keyResult = $('keyResult'), keyStatusContainer = $('keyStatusContainer');
@@ -44,11 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const confirmDialog = $('confirmDialog'), confirmTitle = $('confirmTitle'), confirmMessage = $('confirmMessage');
   const confirmInputContainer = $('confirmInputContainer'), confirmKeyInput = $('confirmKeyInput');
-  const confirmCancelBtn = $('confirmCancelBtn'), confirmConfirmBtn = $('confirmConfirmBtn'), closeConfirmBtn = $('closeConfirmBtn');
+  const confirmCancelBtn = $('confirmCancelBtn'), confirmConfirmBtn = $('confirmConfirmBtn');
   const snackbar = $('snackbar');
   const debugStatusLine = document.querySelector('.debug-status-line');
 
-  /* ---------------- 状态 ---------------- */
+  
+
   let attempts = 3, isLocked = false, currentConfirmAction = null;
   let currentLanguage = localStorage.getItem('language') || 'zh-CN';
   let currentTheme = localStorage.getItem('theme') || 'light';
@@ -67,10 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEFAULT_BG = 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80';
 
-  /* ---------------- 工具 ---------------- */
+  
+
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  /* ---------------- 多语言 ---------------- */
+  
   const t = (k, p) => I18N.t(k, p);
 
   function renderStaticText() {
@@ -108,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     syncSettingsUI();
   }
 
-  /* ---------------- 主题 / 莫奈配色 ---------------- */
+  
   const hexToRgb = (hex) => {
     const h = String(hex).replace('#', '');
     if (h.length !== 6) return hex;
@@ -155,13 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateDynamicColors() {
     const scheme = COLOR_SCHEMES[currentMonetScheme] || COLOR_SCHEMES.basil;
-    // 1) 让 mdui 按主色种子生成整套 M3 配色（--mdui-color-*：表面/描边/容器等随配色色相），
-    //    使所有 mdui 组件都随主题颜色变化。
     if (window.mdui && typeof mdui.setColorScheme === 'function') {
-      try { mdui.setColorScheme(scheme.light.primary); } catch (e) { /* ignore */ }
+      try { mdui.setColorScheme(scheme.light.primary); } catch (e) {  }
     }
-    // 2) 再把关键语义色精确覆盖为自定义调色板值（与预览色块 / 自定义 CSS 完全一致），
-    //    避免 mdui 生成的 tone 与预期主色不一致。
     const dark = root.getAttribute('data-theme') === 'dark';
     const c = scheme[dark ? 'dark' : 'light'];
     const rgb = (hex) => {
@@ -176,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const onFor = (hex) => lum(hex) > 0.5 ? '10, 10, 10' : '255, 255, 255';
 
     const set = (name, value) => root.style.setProperty(name, value);
-    // 旧的 --md-sys-color-*（自定义 CSS 使用）
     set('--md-sys-color-primary', c.primary);
     set('--md-sys-color-on-primary', c.onPrimary);
     set('--md-sys-color-primary-container', c.container);
@@ -185,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
     set('--md-sys-color-secondary-container', c.secondaryContainer);
     set('--md-sys-color-tertiary', c.tertiary);
     set('--md-sys-color-tertiary-container', c.tertiaryContainer);
-    // mdui 组件命名空间（--mdui-color-*）
     set('--mdui-color-primary', rgb(c.primary));
     set('--mdui-color-on-primary', rgb(c.onPrimary));
     set('--mdui-color-primary-container', rgb(c.container));
@@ -200,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     set('--mdui-color-on-tertiary-container', onFor(c.tertiaryContainer));
   }
 
-  /* ---------------- 背景 ---------------- */
+  
   function applyBackground(background) {
     currentBackground = background;
     localStorage.setItem('background', background);
@@ -209,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         const data = JSON.parse(customBackgroundData);
         if (data.dataUrl) url = data.dataUrl;
-      } catch (e) { /* 忽略损坏数据 */ }
+      } catch (e) {  }
     }
     currentBgUrl = url;
     if (backgroundContainer) backgroundContainer.style.backgroundImage = `url("${url}")`;
@@ -222,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (debugBlurVisual) debugBlurVisual.style.backgroundImage = `url(${src})`;
   }
 
-  // 压缩/缩放上传的背景图，使其在 localStorage 配额内可靠保存（真实照片尤其需要）
   function compressBackground(dataUrl, maxDim = 1920, quality = 0.85) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -247,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------------- 状态与提示 ---------------- */
+  
   function updateAttemptsCounter() {
     const chip = attemptsCounter.querySelector('mdui-chip');
     if (chip) chip.textContent = t('attempts_count', { n: attempts });
@@ -279,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const showDebugStatus = snack;
 
-  /* ---------------- 对话框 ---------------- */
+  
   function openSettings() {
     settingsDialog.classList.add('open');
     settingsDialog.classList.remove('closing');
@@ -306,15 +300,9 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmMessage.textContent = message;
     confirmInputContainer.hidden = !needsKey;
     confirmKeyInput.value = '';
-    confirmDialog.classList.remove('closing');
-    confirmDialog.classList.add('open');
+    confirmDialog.open = true;
   }
-  function closeConfirm() {
-    confirmDialog.classList.add('closing');
-    setTimeout(() => confirmDialog.classList.remove('open', 'closing'), 300);
-  }
-  confirmCancelBtn.addEventListener('click', () => { closeConfirm(); currentConfirmAction = null; });
-  closeConfirmBtn.addEventListener('click', () => { closeConfirm(); currentConfirmAction = null; });
+  confirmCancelBtn.addEventListener('click', () => { confirmDialog.open = false; currentConfirmAction = null; });
   confirmConfirmBtn.addEventListener('click', () => {
     if (!currentConfirmAction) return;
     const needsKey = !confirmInputContainer.hidden;
@@ -322,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (needsKey && !key) { showDebugStatus(t('emptyKeyError')); return; }
     const action = currentConfirmAction;
     currentConfirmAction = null;
-    closeConfirm();
+    confirmDialog.open = false;
     action(key);
   });
 
@@ -332,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
   closeSettingsBtn.addEventListener('click', closeSettings);
   closeDebugBtn.addEventListener('click', closeDebug);
 
-  /* ---------------- 设置面板交互 ---------------- */
+  
   const bindCard = (opts, handler) => {
     opts.forEach((opt) => {
       const activate = () => handler(opt);
@@ -360,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     monetOptions.forEach((o) => o.classList.toggle('active', o.getAttribute('data-scheme') === currentMonetScheme));
   }
 
-  /* ---------------- 自定义背景上传 ---------------- */
+  
   bgUploadBtn.addEventListener('click', () => backgroundFileInput.click());
   backgroundFileInput.addEventListener('change', (e) => {
     const file = e.target.files && e.target.files[0];
@@ -387,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
         customBackgroundUpload.style.display = 'flex';
         uploadStatus.textContent = t('backgroundUploadSuccess');
         uploadStatus.className = 'upload-status success';
-        // 上传成功后自动启用自定义背景，并同步选中状态
         applyBackground('custom');
         syncSettingsUI();
       } catch (err) {
@@ -413,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
   versionBadge.addEventListener('click', () => showDebugStatus(t('monetApplied')));
   debugVersionBadge.addEventListener('click', () => showDebugStatus(t('monetApplied')));
 
-  /* ---------------- 调试面板逻辑 ---------------- */
+  
   function applyDebugSettings() {
     root.style.setProperty('--background-blur', debugBackgroundBlur + 'px');
     blurOverlay.style.backdropFilter = `blur(${debugBackgroundBlur}px)`;
@@ -480,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------------- 密钥验证 ---------------- */
+  
   function validateKey() {
     if (isLocked) return;
     const key = keyInput.value.trim();
@@ -509,7 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
   keySubmitBtn.addEventListener('click', validateKey);
   keyInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); validateKey(); } });
 
-  /* ---------------- 命令执行 ---------------- */
+  
   function validateInput() {
     const input = userInput.value.trim();
     resultDiv.classList.remove('show', 'success', 'error');
@@ -526,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
   submitBtn.addEventListener('click', validateInput);
   userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); validateInput(); } });
 
-  /* ---------------- 无权限页 ---------------- */
+  
   function lockedAction() {
     lockedResult.classList.remove('show', 'success', 'error');
     showResult(t('noPermission'), 'error', lockedResult);
@@ -534,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
   lockedSubmitBtn.addEventListener('click', lockedAction);
   lockedInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); lockedAction(); } });
 
-  /* ---------------- 历史记录 ---------------- */
+  
   function addToHistory(cmd) {
     if (commandHistory.length > 0 && commandHistory[0] === cmd) return;
     commandHistory.unshift(cmd);
@@ -577,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   clearHistoryBtn.addEventListener('click', () => { commandHistory = []; localStorage.setItem('commandHistory', '[]'); renderHistory(); });
 
-  /* ---------------- 收藏夹 ---------------- */
+  
   function addToFavorites(cmd) {
     if (favorites.includes(cmd)) return;
     favorites.push(cmd);
@@ -621,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cur) addToFavorites(cur);
   });
 
-  /* ---------------- 初始化 ---------------- */
+  
   if (currentLanguage === 'auto') applyLanguage('auto');
   I18N.setLang(currentLanguage);
   renderStaticText();
@@ -637,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const bg = JSON.parse(customBackgroundData);
       if (bg.dataUrl) { customBackgroundImage.src = bg.dataUrl; customBackgroundInfo.style.display = 'flex'; }
-    } catch (e) { /* ignore */ }
+    } catch (e) {  }
   }
   if (currentBackground === 'custom') customBackgroundUpload.style.display = 'flex';
 

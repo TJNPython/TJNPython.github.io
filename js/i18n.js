@@ -1,6 +1,5 @@
-/* =========================================================
-   TJN-PYTHON SYSTEM — 多语言字典（zh-CN / zh-TW / en / ja）
-   ========================================================= */
+
+
 window.I18N = (() => {
   const L = {
     'zh-CN': '简体中文',
@@ -10,14 +9,15 @@ window.I18N = (() => {
   };
 
   const dict = {
-    /* ---- 静态标签 ---- */
+    
+
     app_title: { 'zh-CN': 'TJN-PYTHON SYSTEM', 'zh-TW': 'TJN-PYTHON SYSTEM', en: 'TJN-PYTHON SYSTEM', ja: 'TJN-PYTHON SYSTEM' },
     key_page_title: { 'zh-CN': '系统验证', 'zh-TW': '系統驗證', en: 'Verification', ja: '認証' },
-    key_page_subtitle: { 'zh-CN': '请输入访问密钥以继续使用系统', 'zh-TW': '請輸入訪問密鑰以繼續使用系統', en: 'Enter the access key to continue', ja: 'アクセスキーを入力して続行' },
+    key_page_subtitle: { 'zh-CN': '只有TJN认可者可以使用。', 'zh-TW': '只有 TJN 認可者可以使用。', en: 'Only TJN-approved users may proceed.', ja: 'TJN 承認者のみ利用できます。' },
     main_page_title: { 'zh-CN': '命令控制台', 'zh-TW': '命令控制台', en: 'Command Console', ja: 'コマンドコンソール' },
     main_page_subtitle: { 'zh-CN': '输入符合规范的指令以执行 Python', 'zh-TW': '輸入符合規範的指令以執行 Python', en: 'Enter commands to execute Python', ja: 'コマンドを入力して Python を実行' },
     locked_page_title: { 'zh-CN': '访问被拒绝', 'zh-TW': '訪問被拒絕', en: 'Access Denied', ja: 'アクセス拒否' },
-    locked_page_subtitle: { 'zh-CN': '您已被系统锁定，无法继续操作', 'zh-TW': '您已被系統鎖定，無法繼續操作', en: 'You have been locked out of the system', ja: 'システムからロックアウトされました' },
+    locked_page_subtitle: { 'zh-CN': '该死的闯入者！TJN已经标记你。', 'zh-TW': '該死的闖入者！TJN 已經標記你。', en: 'Damn intruder! TJN has marked you.', ja: 'くそっ、侵入者！TJN はあなたをマークした。' },
     key_label: { 'zh-CN': '请输入密钥', 'zh-TW': '請輸入密鑰', en: 'Enter the key', ja: 'キーを入力' },
     key_placeholder: { 'zh-CN': '请输入密钥', 'zh-TW': '請輸入密鑰', en: 'Enter the key', ja: 'キーを入力' },
     btn_verify: { 'zh-CN': '验证', 'zh-TW': '驗證', en: 'Verify', ja: '認証' },
@@ -87,7 +87,8 @@ window.I18N = (() => {
     btn_fav: { 'zh-CN': '添加到收藏夹', 'zh-TW': '添加到收藏夾', en: 'Add to favorites', ja: 'お気に入りに追加' },
     btn_del: { 'zh-CN': '删除此记录', 'zh-TW': '刪除此記錄', en: 'Delete', ja: '削除' },
 
-    /* ---- 动态消息 ---- */
+    
+
     emptyKeyError: { 'zh-CN': '错误：密钥不能为空！', 'zh-TW': '錯誤：密鑰不能為空！', en: 'Error: Key cannot be empty!', ja: 'エラー：キーを空にすることはできません！' },
     successVerification: { 'zh-CN': '验证成功！正在进入系统...', 'zh-TW': '驗證成功！正在進入系統...', en: 'Verification successful! Entering system...', ja: '認証成功！システムに入ります...' },
     debugModeActivated: { 'zh-CN': '调试模式已激活！正在进入调试面板...', 'zh-TW': '調試模式已激活！正在進入調試面板...', en: 'Debug mode activated! Entering debug panel...', ja: 'デバッグモードが有効になりました！デバッグパネルに入ります...' },
@@ -117,7 +118,6 @@ window.I18N = (() => {
     modalBlurReset: { 'zh-CN': '模态模糊已重置为默认值', 'zh-TW': '模態模糊已重置為默認值', en: 'Modal blur reset to default', ja: 'モーダルぼかしがデフォルトにリセットされました' },
     modalBlurApplied: { 'zh-CN': '模态模糊设置已应用', 'zh-TW': '模態模糊設定已應用', en: 'Modal blur settings applied', ja: 'モーダルぼかし設定が適用されました' },
     confirmResetAllTitle: { 'zh-CN': '重置所有设置', 'zh-TW': '重置所有設定', en: 'Reset All Settings', ja: 'すべての設定をリセット' },
-    confirm_subtitle: { 'zh-CN': '请确认你的操作', 'zh-TW': '請確認你的操作', en: 'Please confirm your action', ja: '操作を確認してください' },
     confirmResetAll: { 'zh-CN': '确定要重置所有设置吗？这将清除所有自定义设置。', 'zh-TW': '確定要重置所有設定嗎？這將清除所有自定義設定。', en: 'Are you sure you want to reset all settings? This will clear all custom settings.', ja: 'すべての設定をリセットしてもよろしいですか？すべてのカスタム設定がクリアされます。' },
     confirmClearAllDataTitle: { 'zh-CN': '清除所有数据', 'zh-TW': '清除所有數據', en: 'Clear All Data', ja: 'すべてのデータをクリア' },
     confirmClearAllData: { 'zh-CN': '确定要清除所有数据吗？这将清除历史记录、收藏夹和背景设置，但保留调试设置。', 'zh-TW': '確定要清除所有數據嗎？這將清除歷史記錄、收藏夾和背景設定，但保留調試設定。', en: 'Are you sure you want to clear all data? This will clear history, favorites and background settings, but keep debug settings.', ja: 'すべてのデータをクリアしてもよろしいですか？履歴、お気に入り、背景設定がクリアされますが、デバッグ設定は保持されます。' },
@@ -145,7 +145,8 @@ window.I18N = (() => {
     available: L,
     lang: 'zh-CN',
     setLang(l) { this.lang = l || 'zh-CN'; },
-    /** 取当前语言文本，支持 {x} 占位符 */
+    
+
     t(key, params) {
       const entry = dict[key];
       if (!entry) return key;
