@@ -377,7 +377,11 @@ mdui-button.submit-btn.pulse { animation: pulse 0.5s ease-in-out; }
   position: relative;
   overflow: hidden;
 }
-.status-indicator.show { opacity: 1; transform: translateY(0); }
+.status-indicator.show { animation: statusPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+@keyframes statusPop {
+  0% { opacity: 0; transform: translateY(10px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
 .status-indicator.success {
   background: var(--md-sys-color-success-container);
   border-left: 4px solid var(--md-sys-color-success);
@@ -720,6 +724,10 @@ mdui-list { padding: 4px 0; background: transparent; }
   background: rgba(255, 255, 255, 0.1);
 }
 .blur-label { text-align: center; font: var(--md-sys-typescale-body-small-font); color: var(--md-sys-color-on-surface-variant); margin-top: 8px; }
+
+/* 调试面板中的背景模糊实时预览 */
+.debug-blur-preview { height: 96px; margin: 8px 0 0; }
+.debug-blur-preview + .blur-label { position: static; }
 
 /* 版本号 */
 .version-info { display: flex; justify-content: center; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--md-sys-color-outline-variant); }

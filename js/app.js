@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const customBackgroundImage = $('customBackgroundImage'), deleteCustomBackgroundBtn = $('deleteCustomBackgroundBtn');
 
   const blurVisual = $('blurVisual'), blurOverlay = $('blurOverlay'), backgroundImage = $('backgroundImage');
+  const debugBlurVisual = $('debugBlurVisual'), debugBlurEffect = $('debugBlurEffect');
   const versionBadge = $('versionBadge'), debugVersionBadge = $('debugVersionBadge');
 
   const blurSlider = $('blurSlider'), blurValue = $('blurValue'), resetBlurBtn = $('resetBlurBtn'), applyBlurBtn = $('applyBlurBtn');
@@ -40,9 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const attemptsSlider = $('attemptsSlider'), attemptsValue = $('attemptsValue'), resetAttemptsBtn = $('resetAttemptsBtn'), applyAttemptsBtn = $('applyAttemptsBtn');
   const resetAllSettingsBtn = $('resetAllSettingsBtn'), clearAllDataBtn = $('clearAllDataBtn');
   const localStorageSwitch = $('localStorageSwitch'), applyLocalStorageBtn = $('applyLocalStorageBtn');
-  const animationsSwitch = $('animationsSwitch'), applyAnimationsBtn = $('applyAnimationsBtn');
-  const historySwitch = $('historySwitch'), applyHistoryBtn = $('applyHistoryBtn');
-  const favoritesSwitch = $('favoritesSwitch'), applyFavoritesBtn = $('applyFavoritesBtn');
 
   const confirmDialog = $('confirmDialog'), confirmTitle = $('confirmTitle'), confirmMessage = $('confirmMessage');
   const confirmInputContainer = $('confirmInputContainer'), confirmKeyInput = $('confirmKeyInput');
@@ -63,9 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const enabled = (k, d) => { const v = localStorage.getItem(k); return v === null ? d : v !== 'false'; };
   let debugLocalStorageEnabled = enabled('debugLocalStorageEnabled', true);
-  let debugAnimationsEnabled = enabled('debugAnimationsEnabled', true);
-  let debugHistoryEnabled = enabled('debugHistoryEnabled', true);
-  let debugFavoritesEnabled = enabled('debugFavoritesEnabled', true);
   let commandHistory = JSON.parse(localStorage.getItem('commandHistory')) || [];
   let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
@@ -158,9 +153,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateDynamicColors() {
+    const scheme = COLOR_SCHEMES[currentMonetScheme] || COLOR_SCHEMES.basil;
+    // 1) 让 mdui 按主色种子生成整套 M3 配色（--mdui-color-*：表面/描边/容器等随配色色相），
+    //    使所有 mdui 组件都随主题颜色变化。
+    if (window.mdui && typeof mdui.setColorScheme === 'function') {
+      try { mdui.setColorScheme(scheme.light.primary); } catch (e) { /* ignore */ }
+    }
+    // 2) 再把关键语义色精确覆盖为自定义调色板值（与预览色块 / 自定义 CSS 完全一致），
+    //    避免 mdui 生成的 tone 与预期主色不一致。
     const dark = root.getAttribute('data-theme') === 'dark';
-    const c = (COLOR_SCHEMES[currentMonetScheme] || COLOR_SCHEMES.basil)[dark ? 'dark' : 'light'];
+    const c = scheme[dark ? 'dark' : 'light'];
+    const rgb = (hex) => {
+      const h = String(hex).replace('#', '');
+      if (h.length !== 6) return hex;
+      return `${parseInt(h.substring(0, 2), 16)}, ${parseInt(h.substring(2, 4), 16)}, ${parseInt(h.substring(4, 6), 16)}`;
+    };
+    const lum = (hex) => {
+      const n = String(hex).replace('#', '');
+      return (parseInt(n.substring(0, 2), 16) * 0.299 + parseInt(n.substring(2, 4), 16) * 0.587 + parseInt(n.substring(4, 6), 16) * 0.114) / 255;
+    };
+    const onFor = (hex) => lum(hex) > 0.5 ? '10, 10, 10' : '255, 255, 255';
+
     const set = (name, value) => root.style.setProperty(name, value);
+    // 旧的 --md-sys-color-*（自定义 CSS 使用）
     set('--md-sys-color-primary', c.primary);
     set('--md-sys-color-on-primary', c.onPrimary);
     set('--md-sys-color-primary-container', c.container);
@@ -169,6 +184,19 @@ document.addEventListener('DOMContentLoaded', () => {
     set('--md-sys-color-secondary-container', c.secondaryContainer);
     set('--md-sys-color-tertiary', c.tertiary);
     set('--md-sys-color-tertiary-container', c.tertiaryContainer);
+    // mdui 组件命名空间（--mdui-color-*）
+    set('--mdui-color-primary', rgb(c.primary));
+    set('--mdui-color-on-primary', rgb(c.onPrimary));
+    set('--mdui-color-primary-container', rgb(c.container));
+    set('--mdui-color-on-primary-container', rgb(c.onContainer));
+    set('--mdui-color-secondary', rgb(c.secondary));
+    set('--mdui-color-on-secondary', onFor(c.secondary));
+    set('--mdui-color-secondary-container', rgb(c.secondaryContainer));
+    set('--mdui-color-on-secondary-container', onFor(c.secondaryContainer));
+    set('--mdui-color-tertiary', rgb(c.tertiary));
+    set('--mdui-color-on-tertiary', onFor(c.tertiary));
+    set('--mdui-color-tertiary-container', rgb(c.tertiaryContainer));
+    set('--mdui-color-on-tertiary-container', onFor(c.tertiaryContainer));
   }
 
   /* ---------------- 背景 ---------------- */
@@ -187,7 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateBlurPreview(url) {
-    if (blurVisual) blurVisual.style.backgroundImage = `url(${url || backgroundImage.src})`;
+    const src = url || (backgroundImage ? backgroundImage.src : '');
+    if (blurVisual) blurVisual.style.backgroundImage = `url(${src})`;
+    if (debugBlurVisual) debugBlurVisual.style.backgroundImage = `url(${src})`;
   }
 
   /* ---------------- 状态与提示 ---------------- */
@@ -205,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const icon = type === 'success' ? 'check_circle' : 'error';
     container.innerHTML =
       `<div class="status-indicator show ${type}">` +
-      `<div class="status-icon ${type}"><mdui-icon name="${icon}"></mdui-icon></div>` +
+      `<div class="status-icon ${type}"><mdui-icon name="${icon}--outlined"></mdui-icon></div>` +
       `<div class="status-content ${type}"><div class="status-title">${esc(message)}</div></div>` +
       `</div>`;
   }
@@ -309,9 +339,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (file.size > 10 * 1024 * 1024) { uploadStatus.textContent = t('imageTooLarge'); uploadStatus.className = 'upload-status error'; return; }
     const reader = new FileReader();
     reader.onload = (event) => {
-      customBackgroundData = JSON.stringify({ dataUrl: event.target.result, name: file.name });
-      localStorage.setItem('customBackground', customBackgroundData);
-      customBackgroundImage.src = event.target.result;
+      const dataUrl = event.target.result;
+      try {
+        localStorage.setItem('customBackground', JSON.stringify({ dataUrl, name: file.name }));
+      } catch (err) {
+        uploadStatus.textContent = t('backgroundStoreError');
+        uploadStatus.className = 'upload-status error';
+        return;
+      }
+      customBackgroundData = JSON.stringify({ dataUrl, name: file.name });
+      customBackgroundImage.src = dataUrl;
       customBackgroundInfo.style.display = 'flex';
       uploadStatus.textContent = t('backgroundUploadSuccess');
       uploadStatus.className = 'upload-status success';
@@ -336,30 +373,14 @@ document.addEventListener('DOMContentLoaded', () => {
   debugVersionBadge.addEventListener('click', () => showDebugStatus(t('monetApplied')));
 
   /* ---------------- 调试面板逻辑 ---------------- */
-  function applyAnimationSettings() {
-    root.classList.toggle('no-anim', !debugAnimationsEnabled);
-  }
-
-  function applyHistoryAndFavoritesSettings() {
-    historyContainer.hidden = !debugHistoryEnabled;
-    favoritesContainer.hidden = !debugFavoritesEnabled;
-    if (!debugHistoryEnabled) { commandHistory = []; localStorage.removeItem('commandHistory'); renderHistory(); }
-    if (!debugFavoritesEnabled) { favorites = []; localStorage.removeItem('favorites'); renderFavorites(); }
-  }
-
   function applyDebugSettings() {
     root.style.setProperty('--background-blur', debugBackgroundBlur + 'px');
     blurOverlay.style.backdropFilter = `blur(${debugBackgroundBlur}px)`;
     blurOverlay.style.webkitBackdropFilter = `blur(${debugBackgroundBlur}px)`;
     root.style.setProperty('--modal-blur', debugModalBlur + 'px');
     attempts = debugAttempts;
-    applyAnimationSettings();
-    applyHistoryAndFavoritesSettings();
 
     localStorageSwitch.checked = debugLocalStorageEnabled;
-    animationsSwitch.checked = debugAnimationsEnabled;
-    historySwitch.checked = debugHistoryEnabled;
-    favoritesSwitch.checked = debugFavoritesEnabled;
 
     blurSlider.value = debugBackgroundBlur;
     modalBlurSlider.value = debugModalBlur;
@@ -367,11 +388,22 @@ document.addEventListener('DOMContentLoaded', () => {
     blurValue.textContent = debugBackgroundBlur + 'px';
     modalBlurValue.textContent = debugModalBlur + 'px';
     attemptsValue.textContent = String(debugAttempts);
+    updateBlurPreview();
+    syncBlurPreview();
     updateStatusUI();
   }
 
-  blurSlider.addEventListener('input', (e) => { blurValue.textContent = e.detail.value + 'px'; });
-  resetBlurBtn.addEventListener('click', () => { debugBackgroundBlur = 5; blurSlider.value = 5; blurValue.textContent = '5px'; showDebugStatus(t('blurReset')); });
+  function syncBlurPreview() {
+    if (debugBlurEffect) debugBlurEffect.style.backdropFilter = `blur(${debugBackgroundBlur}px)`;
+    if (debugBlurEffect) debugBlurEffect.style.webkitBackdropFilter = `blur(${debugBackgroundBlur}px)`;
+  }
+
+  blurSlider.addEventListener('input', (e) => {
+    blurValue.textContent = e.detail.value + 'px';
+    debugBackgroundBlur = parseInt(e.detail.value);
+    syncBlurPreview();
+  });
+  resetBlurBtn.addEventListener('click', () => { debugBackgroundBlur = 5; blurSlider.value = 5; blurValue.textContent = '5px'; syncBlurPreview(); showDebugStatus(t('blurReset')); });
   applyBlurBtn.addEventListener('click', () => { debugBackgroundBlur = parseInt(blurSlider.value); localStorage.setItem('debugBackgroundBlur', debugBackgroundBlur); applyDebugSettings(); showDebugStatus(t('blurApplied')); });
 
   modalBlurSlider.addEventListener('input', (e) => { modalBlurValue.textContent = e.detail.value + 'px'; });
@@ -392,31 +424,12 @@ document.addEventListener('DOMContentLoaded', () => {
     showDebugStatus(t('localStorageApplied'));
   });
 
-  applyAnimationsBtn.addEventListener('click', () => {
-    debugAnimationsEnabled = animationsSwitch.checked;
-    localStorage.setItem('debugAnimationsEnabled', String(debugAnimationsEnabled));
-    applyAnimationSettings();
-    showDebugStatus(t('animationsApplied'));
-  });
-  applyHistoryBtn.addEventListener('click', () => {
-    debugHistoryEnabled = historySwitch.checked;
-    localStorage.setItem('debugHistoryEnabled', String(debugHistoryEnabled));
-    applyHistoryAndFavoritesSettings();
-    showDebugStatus(t('historyApplied'));
-  });
-  applyFavoritesBtn.addEventListener('click', () => {
-    debugFavoritesEnabled = favoritesSwitch.checked;
-    localStorage.setItem('debugFavoritesEnabled', String(debugFavoritesEnabled));
-    applyHistoryAndFavoritesSettings();
-    showDebugStatus(t('favoritesApplied'));
-  });
-
   resetAllSettingsBtn.addEventListener('click', () => {
     openConfirmDialog(t('confirmResetAllTitle'), t('confirmResetAll'), false, () => { localStorage.clear(); location.reload(); });
   });
   clearAllDataBtn.addEventListener('click', () => {
     openConfirmDialog(t('confirmClearAllDataTitle'), t('confirmClearAllData'), false, () => {
-      const keys = ['debugBackgroundBlur', 'debugAttempts', 'debugModalBlur', 'debugLocalStorageEnabled', 'debugAnimationsEnabled', 'debugHistoryEnabled', 'debugFavoritesEnabled'];
+      const keys = ['debugBackgroundBlur', 'debugAttempts', 'debugModalBlur', 'debugLocalStorageEnabled'];
       const saved = {}; keys.forEach((k) => { if (localStorage.getItem(k) !== null) saved[k] = localStorage.getItem(k); });
       localStorage.clear();
       Object.keys(saved).forEach((k) => localStorage.setItem(k, saved[k]));
@@ -460,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!input) { showStatusMessage(t('emptyInputError'), 'error', statusContainer); return; }
     if (input.includes('上引号，') && input.includes('下引号。')) {
       showStatusMessage(t('successExecution'), 'success', statusContainer);
-      if (debugHistoryEnabled) addToHistory(input);
+      addToHistory(input);
       submitBtn.classList.add('pulse');
       setTimeout(() => submitBtn.classList.remove('pulse'), 500);
     } else {
@@ -506,9 +519,9 @@ document.addEventListener('DOMContentLoaded', () => {
         `<div slot="custom" class="list-row">` +
         `<span class="list-text"></span>` +
         `<div class="list-actions">` +
-        `<mdui-button-icon icon="play_arrow" title="${esc(t('btn_use'))}"></mdui-button-icon>` +
-        `<mdui-button-icon icon="star" title="${esc(t('btn_fav'))}"></mdui-button-icon>` +
-        `<mdui-button-icon icon="delete" title="${esc(t('btn_del'))}"></mdui-button-icon>` +
+        `<mdui-button-icon icon="play_arrow--outlined" title="${esc(t('btn_use'))}"></mdui-button-icon>` +
+        `<mdui-button-icon icon="star--outlined" title="${esc(t('btn_fav'))}"></mdui-button-icon>` +
+        `<mdui-button-icon icon="delete--outlined" title="${esc(t('btn_del'))}"></mdui-button-icon>` +
         `</div></div>`;
       li.querySelector('.list-text').textContent = cmd;
       const btns = li.querySelectorAll('mdui-button-icon');
@@ -550,8 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
         `<div slot="custom" class="list-row">` +
         `<span class="list-text"></span>` +
         `<div class="list-actions">` +
-        `<mdui-button-icon icon="play_arrow" title="${esc(t('btn_use'))}"></mdui-button-icon>` +
-        `<mdui-button-icon icon="delete" title="${esc(t('btn_del'))}"></mdui-button-icon>` +
+        `<mdui-button-icon icon="play_arrow--outlined" title="${esc(t('btn_use'))}"></mdui-button-icon>` +
+        `<mdui-button-icon icon="delete--outlined" title="${esc(t('btn_del'))}"></mdui-button-icon>` +
         `</div></div>`;
       li.querySelector('.list-text').textContent = cmd;
       const btns = li.querySelectorAll('mdui-button-icon');
@@ -562,7 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   addCurrentToFavoritesBtn.addEventListener('click', () => {
     const cur = userInput.value.trim();
-    if (cur && debugFavoritesEnabled) addToFavorites(cur);
+    if (cur) addToFavorites(cur);
   });
 
   /* ---------------- 初始化 ---------------- */
