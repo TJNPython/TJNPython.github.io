@@ -35,11 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const debugBlurVisual = $('debugBlurVisual'), debugBlurEffect = $('debugBlurEffect');
   const versionBadge = $('versionBadge'), debugVersionBadge = $('debugVersionBadge');
 
-  const blurSlider = $('blurSlider'), blurValue = $('blurValue'), resetBlurBtn = $('resetBlurBtn'), applyBlurBtn = $('applyBlurBtn');
-  const modalBlurSlider = $('modalBlurSlider'), modalBlurValue = $('modalBlurValue'), resetModalBlurBtn = $('resetModalBlurBtn'), applyModalBlurBtn = $('applyModalBlurBtn');
-  const attemptsSlider = $('attemptsSlider'), attemptsValue = $('attemptsValue'), resetAttemptsBtn = $('resetAttemptsBtn'), applyAttemptsBtn = $('applyAttemptsBtn');
+  const blurSlider = $('blurSlider'), blurValue = $('blurValue'), resetBlurBtn = $('resetBlurBtn');
+  const modalBlurSlider = $('modalBlurSlider'), modalBlurValue = $('modalBlurValue'), resetModalBlurBtn = $('resetModalBlurBtn');
+  const attemptsSlider = $('attemptsSlider'), attemptsValue = $('attemptsValue'), resetAttemptsBtn = $('resetAttemptsBtn');
   const resetAllSettingsBtn = $('resetAllSettingsBtn'), clearAllDataBtn = $('clearAllDataBtn');
-  const localStorageSwitch = $('localStorageSwitch'), applyLocalStorageBtn = $('applyLocalStorageBtn');
+  const localStorageSwitch = $('localStorageSwitch');
 
   const confirmDialog = $('confirmDialog'), confirmTitle = $('confirmTitle'), confirmMessage = $('confirmMessage');
   const confirmInputContainer = $('confirmInputContainer'), confirmKeyInput = $('confirmKeyInput');
@@ -428,23 +428,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const syncBlurChip = () => { const v = Number(blurSlider.value); blurValue.textContent = v + 'px'; debugBackgroundBlur = v; syncBlurPreview(); };
   blurSlider.addEventListener('input', syncBlurChip);
-  blurSlider.addEventListener('change', syncBlurChip);
-  resetBlurBtn.addEventListener('click', () => { debugBackgroundBlur = 5; blurSlider.value = 5; blurValue.textContent = '5px'; syncBlurPreview(); showDebugStatus(t('blurReset')); });
-  applyBlurBtn.addEventListener('click', () => { debugBackgroundBlur = parseInt(blurSlider.value); localStorage.setItem('debugBackgroundBlur', debugBackgroundBlur); applyDebugSettings(); showDebugStatus(t('blurApplied')); });
+  blurSlider.addEventListener('change', () => { debugBackgroundBlur = parseInt(blurSlider.value); localStorage.setItem('debugBackgroundBlur', debugBackgroundBlur); applyDebugSettings(); showDebugStatus(t('blurApplied')); });
+  resetBlurBtn.addEventListener('click', () => { debugBackgroundBlur = 5; localStorage.setItem('debugBackgroundBlur', 5); blurSlider.value = 5; blurValue.textContent = '5px'; applyDebugSettings(); showDebugStatus(t('blurReset')); });
 
   const syncModalBlurChip = () => { modalBlurValue.textContent = Number(modalBlurSlider.value) + 'px'; };
   modalBlurSlider.addEventListener('input', syncModalBlurChip);
-  modalBlurSlider.addEventListener('change', syncModalBlurChip);
-  resetModalBlurBtn.addEventListener('click', () => { debugModalBlur = 12; modalBlurSlider.value = 12; modalBlurValue.textContent = '12px'; showDebugStatus(t('modalBlurReset')); });
-  applyModalBlurBtn.addEventListener('click', () => { debugModalBlur = parseInt(modalBlurSlider.value); localStorage.setItem('debugModalBlur', debugModalBlur); applyDebugSettings(); showDebugStatus(t('modalBlurApplied')); });
+  modalBlurSlider.addEventListener('change', () => { debugModalBlur = parseInt(modalBlurSlider.value); localStorage.setItem('debugModalBlur', debugModalBlur); applyDebugSettings(); showDebugStatus(t('modalBlurApplied')); });
+  resetModalBlurBtn.addEventListener('click', () => { debugModalBlur = 12; localStorage.setItem('debugModalBlur', 12); modalBlurSlider.value = 12; modalBlurValue.textContent = '12px'; applyDebugSettings(); showDebugStatus(t('modalBlurReset')); });
 
   const syncAttemptsChip = () => { attemptsValue.textContent = String(Number(attemptsSlider.value)); };
   attemptsSlider.addEventListener('input', syncAttemptsChip);
-  attemptsSlider.addEventListener('change', syncAttemptsChip);
-  resetAttemptsBtn.addEventListener('click', () => { debugAttempts = 3; attemptsSlider.value = 3; attemptsValue.textContent = '3'; showDebugStatus(t('attemptsReset')); });
-  applyAttemptsBtn.addEventListener('click', () => { debugAttempts = parseInt(attemptsSlider.value); localStorage.setItem('debugAttempts', debugAttempts); attempts = debugAttempts; updateAttemptsCounter(); showDebugStatus(t('attemptsApplied')); });
+  attemptsSlider.addEventListener('change', () => { debugAttempts = parseInt(attemptsSlider.value); localStorage.setItem('debugAttempts', debugAttempts); attempts = debugAttempts; updateAttemptsCounter(); applyDebugSettings(); showDebugStatus(t('attemptsApplied')); });
+  resetAttemptsBtn.addEventListener('click', () => { debugAttempts = 3; localStorage.setItem('debugAttempts', 3); attempts = 3; attemptsSlider.value = 3; attemptsValue.textContent = '3'; updateAttemptsCounter(); showDebugStatus(t('attemptsReset')); });
 
-  applyLocalStorageBtn.addEventListener('click', () => {
+  localStorageSwitch.addEventListener('change', () => {
     debugLocalStorageEnabled = localStorageSwitch.checked;
     localStorage.setItem('debugLocalStorageEnabled', String(debugLocalStorageEnabled));
     if (!debugLocalStorageEnabled) {

@@ -51,6 +51,7 @@
   --md-ref-palette-error0: #000000;
   --md-ref-palette-error10: #410002;
   --md-ref-palette-error20: #690005;
+  --md-ref-palette-error30: #93000A;
   --md-ref-palette-error40: #BA1A1A;
   --md-ref-palette-error80: #FFB4AB;
   --md-ref-palette-error90: #FFDAD6;
@@ -333,6 +334,19 @@ body {
 
 mdui-text-field { width: 100%; margin-bottom: 22px; display: block; }
 
+mdui-text-field::part(input) {
+  color: var(--md-sys-color-on-surface);
+  -webkit-text-fill-color: var(--md-sys-color-on-surface);
+  caret-color: var(--md-sys-color-primary);
+}
+mdui-text-field::part(input)::placeholder {
+  color: var(--md-sys-color-on-surface-variant);
+  -webkit-text-fill-color: var(--md-sys-color-on-surface-variant);
+}
+mdui-text-field::part(label) {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
 mdui-button.submit-btn {
   width: 100%;
   min-height: 52px;
@@ -461,7 +475,13 @@ mdui-button.submit-btn.pulse { animation: pulse 0.5s ease-in-out; }
 
 
 
-.listing-card { margin-top: 16px; }
+.listing-card {
+  margin-top: 16px;
+  width: 400px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
 .listing-card .card-header {
   display: flex;
   align-items: center;
@@ -479,7 +499,7 @@ mdui-button.submit-btn.pulse { animation: pulse 0.5s ease-in-out; }
 .card-header-left mdui-icon { color: var(--md-sys-color-primary); }
 .card-header mdui-button-icon { color: var(--md-sys-color-primary); }
 .card-list {
-  height: 224px;
+  max-height: 220px;
   overflow-y: auto;
   padding: 4px 8px 8px;
 }
@@ -833,8 +853,21 @@ mdui-slider { width: 100%; }
 
 
 mdui-dialog { --md-dialog-corner-radius: var(--md-sys-shape-corner-large); }
+/* 防止确认弹窗在窄屏/手机设备上被 280px 最小宽度顶到屏幕边缘：
+   将面板最大宽度收敛到视口并保留安全边距，同时放开最小宽度下限 */
+mdui-dialog#confirmDialog::part(panel) {
+  min-width: 0;
+  max-width: min(420px, calc(100vw - 32px));
+}
 .dialog-title-main { font-size: 20px; font-weight: 600; color: var(--md-sys-color-on-surface); }
-.confirm-message { padding: 8px 4px; font: var(--md-sys-typescale-body-large-font); color: var(--md-sys-color-on-surface); line-height: 1.5; }
+.confirm-message {
+  padding: 8px 4px;
+  font: var(--md-sys-typescale-body-large-font);
+  color: var(--md-sys-color-on-surface);
+  line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 #confirmInputContainer { margin: 12px 0; }
 #confirmInputContainer mdui-text-field { width: 100%; margin-bottom: 0; }
 .confirm-actions { justify-content: flex-end; }
