@@ -857,8 +857,8 @@ mdui-dialog { --md-dialog-corner-radius: var(--md-sys-shape-corner-large); }
    将面板最大宽度收敛到视口并保留安全边距，同时放开最小宽度下限 */
 mdui-dialog#confirmDialog::part(panel) {
   min-width: 0;
-  width: calc(100vw - 32px);
-  max-width: calc(100vw - 32px);
+  width: min(100%, 480px);
+  max-width: min(100%, 480px);
 }
 .dialog-title-main { font-size: 20px; font-weight: 600; color: var(--md-sys-color-on-surface); }
 .confirm-message {
